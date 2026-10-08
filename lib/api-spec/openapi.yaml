@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: grid
+    description: Synthetic power-grid cascade analysis
 paths:
   /healthz:
     get:
@@ -24,6 +26,54 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /grid-case:
+    get:
+      operationId: getGridCase
+      tags: [grid]
+      summary: Get the synthetic 14-bus test case
+      responses:
+        "200":
+          description: Synthetic network topology and operating point
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GridCase"
+  /grid-overview:
+    get:
+      operationId: getGridOverview
+      tags: [grid]
+      summary: Get summary metrics for the default contingency
+      responses:
+        "200":
+          description: Default scenario summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GridOverview"
+  /simulation/run:
+    post:
+      operationId: runGridSimulation
+      tags: [grid]
+      summary: Run a synthetic contingency and cascade-risk scenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimulationInput"
+      responses:
+        "200":
+          description: Predicted cascade, line risks, and mitigation recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimulationResult"
+        "400":
+          description: Invalid simulation parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +83,137 @@ components:
           type: string
       required:
         - status
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    GridBus:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        zone: { type: string }
+        kind: { type: string }
+        loadMW: { type: number }
+        generationMW: { type: number }
+        voltagePU: { type: number }
+        frequencyHz: { type: number }
+        status: { type: string }
+        x: { type: number }
+        y: { type: number }
+      required: [id, name, zone, kind, loadMW, generationMW, voltagePU, frequencyHz, status, x, y]
+    GridLine:
+      type: object
+      properties:
+        id: { type: string }
+        fromBus: { type: integer }
+        toBus: { type: integer }
+        flowMW: { type: number }
+        capacityMW: { type: number }
+        reactancePU: { type: number }
+        status: { type: string }
+      required: [id, fromBus, toBus, flowMW, capacityMW, reactancePU, status]
+    GridCase:
+      type: object
+      properties:
+        name: { type: string }
+        version: { type: string }
+        modelNote: { type: string }
+        defaultContingency: { type: string }
+        buses:
+          type: array
+          items: { $ref: "#/components/schemas/GridBus" }
+        lines:
+          type: array
+          items: { $ref: "#/components/schemas/GridLine" }
+      required: [name, version, modelNote, defaultContingency, buses, lines]
+    SimulationInput:
+      type: object
+      properties:
+        contingencyLineId: { type: string, minLength: 1 }
+        loadMultiplier: { type: number, minimum: 0.7, maximum: 1.5 }
+        failureThreshold: { type: number, minimum: 0.5, maximum: 1.5 }
+        samples: { type: integer, minimum: 50, maximum: 1000 }
+      required: [contingencyLineId, loadMultiplier, failureThreshold, samples]
+    FailureEvent:
+      type: object
+      properties:
+        step: { type: integer }
+        componentId: { type: string }
+        componentType: { type: string }
+        probability: { type: number }
+        loadingPercent: { type: number }
+        reason: { type: string }
+      required: [step, componentId, componentType, probability, loadingPercent, reason]
+    LineRisk:
+      type: object
+      properties:
+        lineId: { type: string }
+        fromBus: { type: integer }
+        toBus: { type: integer }
+        loadingPercent: { type: number }
+        failureProbability: { type: number }
+        state: { type: string }
+        flowMW: { type: number }
+        capacityMW: { type: number }
+      required: [lineId, fromBus, toBus, loadingPercent, failureProbability, state, flowMW, capacityMW]
+    RiskTimelinePoint:
+      type: object
+      properties:
+        step: { type: string }
+        riskPercent: { type: number }
+        failedLines: { type: integer }
+      required: [step, riskPercent, failedLines]
+    MitigationRecommendation:
+      type: object
+      properties:
+        priority: { type: integer }
+        action: { type: string }
+        expectedImpact: { type: string }
+        rationale: { type: string }
+      required: [priority, action, expectedImpact, rationale]
+    SimulationResult:
+      type: object
+      properties:
+        scenarioName: { type: string }
+        riskStatus: { type: string }
+        cascadePredicted: { type: boolean }
+        cascadeSeverity: { type: number }
+        affectedLoadMW: { type: number }
+        failedComponents: { type: integer }
+        estimatedProbability: { type: number }
+        confidenceLower: { type: number }
+        confidenceUpper: { type: number }
+        stable: { type: boolean }
+        steps:
+          type: array
+          items: { $ref: "#/components/schemas/FailureEvent" }
+        lineRisks:
+          type: array
+          items: { $ref: "#/components/schemas/LineRisk" }
+        timeline:
+          type: array
+          items: { $ref: "#/components/schemas/RiskTimelinePoint" }
+        mitigations:
+          type: array
+          items: { $ref: "#/components/schemas/MitigationRecommendation" }
+        assumptions:
+          type: array
+          items: { type: string }
+      required: [scenarioName, riskStatus, cascadePredicted, cascadeSeverity, affectedLoadMW, failedComponents, estimatedProbability, confidenceLower, confidenceUpper, stable, steps, lineRisks, timeline, mitigations, assumptions]
+    GridOverview:
+      type: object
+      properties:
+        caseName: { type: string }
+        buses: { type: integer }
+        lines: { type: integer }
+        totalLoadMW: { type: number }
+        totalGenerationMW: { type: number }
+        riskStatus: { type: string }
+        defaultContingency: { type: string }
+        estimatedProbability: { type: number }
+        overloadedLines: { type: integer }
+      required: [caseName, buses, lines, totalLoadMW, totalGenerationMW, riskStatus, defaultContingency, estimatedProbability, overloadedLines]
 

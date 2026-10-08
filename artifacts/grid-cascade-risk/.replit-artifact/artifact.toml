@@ -1,0 +1,28 @@
+kind = "data-app"
+previewPath = "/"
+title = "Grid Cascade Risk"
+description = "An interactive synthetic power-grid reliability simulator that visualizes overloaded transmission lines, cascade propagation, component failure probabilities, and mitigation scenarios, with a Python reference implementation and execution walkthrough."
+version = "1.0.0"
+id = "artifacts/grid-cascade-risk"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22560
+
+[services.development]
+run = "pnpm --filter @workspace/grid-cascade-risk run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/grid-cascade-risk", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/grid-cascade-risk/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22560"
+BASE_PATH = "/"

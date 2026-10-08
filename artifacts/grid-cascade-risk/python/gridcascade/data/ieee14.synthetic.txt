@@ -1,0 +1,40 @@
+# Small, self-contained teaching case inspired by IEEE 14-bus connectivity.
+# Values are synthetic and are not an official IEEE case file.
+[BUSES]
+id,name,zone,kind,load_mw,generation_mw,voltage_pu,frequency_hz,status,x,y
+1,North Hub,North,Slack,0,232.4,1.060,60.0,online,17,48
+2,Riverbend,North,Generator,21.7,26.6,1.045,60.0,online,34,25
+3,West Ridge,West,Load,94.2,0,1.010,60.0,online,52,10
+4,Central,Central,Load,47.8,0,1.019,60.0,online,49,43
+5,Pine Valley,West,Load,7.6,0,1.020,60.0,online,31,61
+6,Lakeside,Central,Load,11.2,0,1.070,60.0,online,13,79
+7,East Junction,East,Transfer,0,0,1.062,60.0,online,69,58
+8,East Reserve,East,Generator,0,0,1.090,60.0,online,86,60
+9,Harbor,East,Load,29.5,0,1.056,60.0,online,72,34
+10,Southport,South,Load,9.0,0,1.051,60.0,online,85,20
+11,Meadow,South,Load,3.5,0,1.057,60.0,online,59,86
+12,Cedar,South,Load,6.1,0,1.055,60.0,online,35,88
+13,South Ridge,South,Load,13.5,0,1.050,60.0,online,49,70
+14,Coastal,East,Load,14.9,0,1.036,60.0,online,90,43
+[LINES]
+id,from_bus,to_bus,capacity_mw,reactance_pu,status
+L01,1,2,110,0.059,online
+L02,1,5,90,0.223,online
+L03,2,3,75,0.197,online
+L04,2,4,70,0.176,online
+L05,2,5,70,0.173,online
+L06,3,4,65,0.171,online
+L07,4,5,85,0.042,online
+L08,4,7,50,0.209,online
+L09,4,9,45,0.556,online
+L10,5,6,50,0.252,online
+L11,6,11,30,0.199,online
+L12,6,12,28,0.256,online
+L13,6,13,35,0.130,online
+L14,7,8,35,0.176,online
+L15,7,9,35,0.110,online
+L16,9,10,32,0.084,online
+L17,9,14,24,0.270,online
+L18,10,11,26,0.192,online
+L19,12,13,22,0.199,online
+L20,13,14,22,0.348,online

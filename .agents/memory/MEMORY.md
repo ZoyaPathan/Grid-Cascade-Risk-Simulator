@@ -1,0 +1,1 @@
+- [Cascade trip thresholds](cascade-trip-thresholds.md) — Keep probabilistic hazard estimates separate from physical outage triggers so iterative cascades stabilize.

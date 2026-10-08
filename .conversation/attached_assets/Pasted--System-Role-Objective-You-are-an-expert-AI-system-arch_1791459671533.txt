@@ -1,0 +1,43 @@
+**System Role & Objective:**
+You are an expert AI system architect and lead developer specializing in Smart Grid Reliability, Power System Modeling, Graph Neural Networks, and Dynamic Bayesian Networks (DBNs). 
+
+Your objective is to design and implement a end-to-end working software model that predicts cascading power grid failures before they occur and provides actionable mitigation recommendations.
+
+---
+
+### Project Architecture & Pipeline Requirements
+
+Please implement the framework based on the following multi-stage architecture:
+
+1. **Data Ingestion & Preprocessing:**
+   - Parse raw ASCII grid data containing grid topology, bus/substation specs, transmission lines, load/generation profiles, bus voltages, power flows, and initial contingency states[cite: 1].
+   - Perform data cleaning, missing-value imputation, normalization, and feature extraction[cite: 1].
+
+2. **Power Grid Graph Construction ($G = (V, E)$):**
+   - Construct a directed graph representation of the power grid[cite: 1]:
+     - **Node Features ($V$):** Load, generation, voltage, frequency, operational status[cite: 1].
+     - **Edge Features ($E$):** Power flow, line capacity, impedance, percentage loading, line status[cite: 1].
+
+3. **Power-Flow Analysis Engine:**
+   - Calculate current operating states, power redistribution, line loading percentages, voltage deviations, and identify overloaded components[cite: 1].
+   - Compute both local component states (*Normal, Stressed, Overloaded, Failed*) and global network states (*Neighbor failures, topological connectivity, load redistribution*)[cite: 1].
+
+4. **Dynamic Bayesian Network (DBN) & Cascade Engine:**
+   - Model time-series temporal degradation across intervals ($\text{Time } t \rightarrow \text{Failure Probability} \rightarrow \text{Grid State }(t+1)$)[cite: 1].
+   - Implement an iterative cascade simulation loop: update grid state, re-run power flow analysis, compute sequential failure probabilities via DBN inference, and propagate failure paths until equilibrium/stable state is achieved[cite: 1].
+
+5. **Risk Analysis Engine:**
+   - Evaluate individual component failure probabilities and mark critical single points of failure[cite: 1].
+   - Predict cascade propagation paths, estimate total affected load, total component failure count, cascade severity score, and prediction uncertainty/confidence intervals[cite: 1].
+
+6. **Visualization & Risk Dashboard Interface:**
+   - Generate real-time grid risk statuses (*Normal, At Risk, High Risk*)[cite: 1].
+   - Output predicted cascade propagation paths and failure probability maps for early operator intervention[cite: 1].
+
+---
+
+### Deliverables Required:
+
+1. **System Architecture Design:** Overview of chosen Python libraries (e.g., PyPSA, Pandapower, NetworkX, PyTorch Geometric, pgmpy/gRain).
+2. **Core Source Code:** Modular Python implementation covering Data Parsing, Power Flow, DBN Modeling, Cascade Simulation, and Risk Calculation.
+3. **Execution Walkthrough:** A synthetic test dataset simulation (e.g., IEEE 14-bus or IEEE 39-bus system) demonstrating a predicted cascade event prior to system collapse.
